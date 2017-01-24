@@ -30,12 +30,12 @@
         android:icon="@android:drawable/ic_menu_compass" />
 
     <EditTextPreference
-        android:defaultValue="50,210"
+        android:defaultValue="50.210"
         android:dependency="gps_checking"
         android:key="gps_latitude"
         android:title="@string/pref_title_latitude" />
     <EditTextPreference
-        android:defaultValue="15,825"
+        android:defaultValue="15.825"
         android:dependency="gps_checking"
         android:key="gps_longitude"
         android:title="@string/pref_title_longitude" />

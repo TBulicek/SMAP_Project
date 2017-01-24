@@ -1,0 +1,68 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
+         dismiss it. -->
+    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
+    <!--<ListPreference
+        android:defaultValue="180"
+        android:entries="@array/pref_sync_frequency_titles"
+        android:entryValues="@array/pref_sync_frequency_values"
+        android:key="sync_frequency"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_title_sync_frequency" />-->
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="wifi_checking"
+        android:title="@string/pref_title_check_wifi" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="mac_checking"
+        android:title="@string/pref_title_check_mac" />
+
+    <!-- Allows the user to choose a ringtone in the 'notification' category. -->
+    <!-- NOTE: This preference will be enabled only when the checkbox above is checked. -->
+    <!-- NOTE: RingtonePreference's summary should be set to its value by the activity code. -->
+    <PreferenceCategory android:title="WiFi">
+
+    </PreferenceCategory>
+
+    <Preference android:title="Current WiFi"
+    android:key="@string/map_button"
+    android:dependency="wifi_checking"
+    android:summary="Set workplace WiFi to current"
+    android:icon="@android:drawable/ic_menu_upload" />
+
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/pref_wifimodes_titles"
+        android:entryValues="@array/pref_wifimodes_values"
+        android:key="wifi_mode"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:title="@string/pref_title_wifimode" />
+
+    <EditTextPreference
+        android:defaultValue=""
+        android:dependency="wifi_checking"
+        android:key="wifi_ssid"
+        android:title="@string/pref_title_ssid" />
+
+    <PreferenceCategory android:title="Paired device">
+
+    </PreferenceCategory>
+
+    <Preference android:title="Browse devices"
+        android:key="@string/map_button"
+        android:dependency="mac_checking"
+        android:summary="Select device from current network"
+        android:icon="@android:drawable/ic_menu_share" />
+
+    <EditTextPreference
+        android:defaultValue=""
+        android:dependency="mac_checking"
+        android:key="mac_address"
+        android:title="@string/pref_title_mac" />
+
+</PreferenceScreen>

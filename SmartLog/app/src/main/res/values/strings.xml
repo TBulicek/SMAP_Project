@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SmartLog</string>
+    <string name="app_name">Smart Attendance</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
 
@@ -29,36 +29,23 @@
     </string-array>
 
     <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Set workplace WiFi</string>
+    <string name="pref_header_data_sync">Workplace WiFi</string>
 
-    <string name="pref_title_sync_frequency">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
-    </string-array>
-    <string-array name="pref_sync_frequency_values">
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-        <item>360</item>
-        <item>-1</item>
+    <string name="pref_title_check_wifi">WiFi validation</string>
+    <string name="pref_title_check_mac">MAC validation</string>
+
+    <string name="pref_title_ssid">SSID</string>
+    <string name="pref_title_wifimode">Validation mode</string>
+    <string name="pref_title_mac">MAC address</string>
+
+    <string-array name="pref_wifimodes_titles">
+        <item>WiFi available</item>
+        <item>Connected to WiFi</item>
     </string-array>
 
-    <string-array name="list_preference_entries">
-        <item>Entry 1</item>
-        <item>Entry 2</item>
-        <item>Entry 3</item>
-    </string-array>
-
-    <string-array name="list_preference_entry_values">
+    <string-array name="pref_wifimodes_values">
         <item>1</item>
         <item>2</item>
-        <item>3</item>
     </string-array>
 
     <string-array name="multi_select_list_preference_default_value" />
@@ -66,7 +53,7 @@
     <string name="pref_title_system_sync_settings">System sync settings</string>
 
     <!-- Example settings for Notifications -->
-    <string name="pref_header_gps">Set workplace location</string>
+    <string name="pref_header_gps">Workplace location</string>
 
     <string name="pref_title_check_gps">GPS validation</string>
 

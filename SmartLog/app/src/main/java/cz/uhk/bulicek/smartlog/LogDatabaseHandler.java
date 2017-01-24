@@ -76,14 +76,56 @@ public class LogDatabaseHandler extends SQLiteOpenHelper {
         return logList;
     }
 
+    public Log getLastLog() {
+        Log log = null;
+        String selectLastQuery = "SELECT  * FROM " + LOGS_TABLE_NAME +
+                " WHERE " + "TIME" + ">=date('now','-1 day','start of day') " +
+                "ORDER BY " + "TIME" + " DESC LIMIT 1";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.rawQuery(selectLastQuery, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                log = new Log(cursor.getString(0), cursor.getInt(1));
+            } while (cursor.moveToNext());
+        }
+
+        db.close();
+
+        // return list
+        return log;
+    }
+
     public List<Log> getLogsToday() {
         List<Log> logList = new ArrayList<Log>();
-        // Select All Query
+        // take only last log from yesterday, if it's '1'
+        String selectYesterdayQuery = "SELECT  * FROM " + LOGS_TABLE_NAME +
+                " WHERE " + "TIME" + ">=date('now','-1 day','start of day') AND " +
+                "TIME" + "<date('now','localtime','start of day') " +
+                "ORDER BY " + "TIME" + " DESC LIMIT 1";
+
+        // select today
         String selectQuery = "SELECT  * FROM " + LOGS_TABLE_NAME +
                 " WHERE " + "TIME" + ">=date('now','localtime','start of day')";
 
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        Cursor cursor = db.rawQuery(selectYesterdayQuery, null);
+
+        // looping through all rows and adding to list
+        if (cursor.moveToFirst()) {
+            do {
+                Log log = new Log(cursor.getString(0), cursor.getInt(1));
+                // Adding log to list
+                if (log.get_type() == 1) logList.add(log);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        cursor = db.rawQuery(selectQuery, null);
 
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
@@ -95,6 +137,7 @@ public class LogDatabaseHandler extends SQLiteOpenHelper {
         }
 
         db.close();
+
         // return list
         return logList;
     }

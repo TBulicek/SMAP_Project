@@ -2,22 +2,16 @@ package cz.uhk.bulicek.smartlog;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.test.suitebuilder.TestMethod;
-import android.test.suitebuilder.annotation.SmallTest;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Text;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,10 +22,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
-    boolean isAttendanceRunning = false;
+    boolean isAttendanceRunning;
     TextView txtToday, txtTodayLeft, txtMonth, txtMonthLeft;
     LogDatabaseHandler dbh = new LogDatabaseHandler(this);
     FloatingActionButton fab;
+    Button btnStart, btnStop;
     String strToday, strTodayLeft, strMonth, strMonthLeft;
     Boolean todayLess = true, monthLess = true;
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -39,6 +34,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log initLog = dbh.getLastLog();
+        if (initLog == null || initLog.get_type() == 0) {
+            isAttendanceRunning = false;
+        } else {
+            isAttendanceRunning = true;
+        }
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -49,7 +51,51 @@ public class MainActivity extends AppCompatActivity {
         txtMonthLeft = (TextView) findViewById(R.id.txt_leftMonth) ;
         updateDisplay();
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        btnStop = (Button) findViewById(R.id.btn_stop);
+        btnStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar cal = Calendar.getInstance();
+                if (isAttendanceRunning) {
+                    btnStart.setText("Start working");
+                    btnStop.setEnabled(false);
+                    btnStop.setVisibility(View.INVISIBLE);
+                    btnStart.setEnabled(true);
+                    isAttendanceRunning = false;
+                    dbh.addLog(new Log(sdf.format(cal.getTime()), 0));
+                }
+            }
+        });
+        btnStart = (Button) findViewById(R.id.btn_start);
+        btnStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar cal = Calendar.getInstance();
+                if (!isAttendanceRunning) {
+                    btnStart.setText("Working...");
+                    btnStart.setEnabled(false);
+                    btnStop.setVisibility(View.VISIBLE);
+                    btnStop.setEnabled(true);
+                    isAttendanceRunning = true;
+                    dbh.addLog(new Log(sdf.format(cal.getTime()), 1));
+                }
+            }
+        });
+
+        if (isAttendanceRunning) {
+            btnStart.setText("Working...");
+            btnStart.setEnabled(false);
+            btnStop.setVisibility(View.VISIBLE);
+            btnStop.setEnabled(true);
+        } else {
+            btnStart.setText("Start working");
+            btnStop.setEnabled(false);
+            btnStop.setVisibility(View.INVISIBLE);
+            btnStart.setEnabled(true);
+        }
+
+        /*fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
                 //Snackbar.make(view, "Attendance logging stopped.", Snackbar.LENGTH_LONG)
                 //        .setAction("Action", null).show();
             }
-        });
+        });*/
     }
 
     @Override
@@ -183,10 +229,11 @@ public class MainActivity extends AppCompatActivity {
 
                 //Fond pracovní doby
                 fpd = 0;
-                cal.set(Calendar.DAY_OF_MONTH, 1);
                 int currMonth=cal.get(Calendar.MONTH);
+                int currDay=cal.get(Calendar.DAY_OF_MONTH);
+                cal.set(Calendar.DAY_OF_MONTH, 1);
 
-                while (currMonth==cal.get(Calendar.MONTH)) {
+                while (currMonth==cal.get(Calendar.MONTH) && currDay >= cal.get(Calendar.DAY_OF_MONTH)) {
                     if (!(cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)) {
                         fpd += 28800;
                     }
@@ -214,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
                 updateHours();
             }
 
-        },0,1000);//Update text every second
+        },0,60000);//Update text every second
     }
 
     private long getSecondsCount(List<Log> logs) {
@@ -259,6 +306,7 @@ public class MainActivity extends AppCompatActivity {
         int mins = (int) (secondsCount / 60);
         int hours = mins / 60;
         mins = mins % 60;
-        return hours + ":" + String.format("%02d", mins) + ":" + String.format("%02d", secs);
+        if (secs >= 30) mins++;
+        return hours + ":" + String.format("%02d", mins); // + ":" + String.format("%02d", secs);
     }
 }
