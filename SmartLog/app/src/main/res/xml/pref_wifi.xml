@@ -29,7 +29,7 @@
     </PreferenceCategory>
 
     <Preference android:title="Current WiFi"
-    android:key="@string/map_button"
+    android:key="@string/wifi_button"
     android:dependency="wifi_checking"
     android:summary="Set workplace WiFi to current"
     android:icon="@android:drawable/ic_menu_upload" />
@@ -54,7 +54,7 @@
     </PreferenceCategory>
 
     <Preference android:title="Browse devices"
-        android:key="@string/map_button"
+        android:key="@string/mac_button"
         android:dependency="mac_checking"
         android:summary="Select device from current network"
         android:icon="@android:drawable/ic_menu_share" />

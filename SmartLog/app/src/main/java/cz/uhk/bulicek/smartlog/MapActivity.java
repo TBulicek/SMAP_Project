@@ -48,11 +48,14 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                Toast.makeText(getApplicationContext(), latLng.toString(), Toast.LENGTH_LONG).show();
                 SharedPreferences.Editor editor = shprefs.edit();
                 editor.putString("gps_latitude", latLng.latitude + "");
                 editor.putString("gps_longitude", latLng.longitude + "");
                 editor.commit();
+                Toast.makeText(getApplicationContext(),
+                        "Latitude set to " + shprefs.getString("gps_latitude", "0.00") + ", \n" +
+                        "longitude set to " + shprefs.getString("gps_longitude", "0.00") + ".",
+                        Toast.LENGTH_LONG).show();
                 finish();
             }
         });

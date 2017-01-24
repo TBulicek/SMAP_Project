@@ -4,6 +4,7 @@ package cz.uhk.bulicek.smartlog;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -29,6 +31,7 @@ import java.util.List;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
+    private static SharedPreferences shprefs;
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -91,6 +94,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        shprefs = PreferenceManager.getDefaultSharedPreferences(this);
         super.onCreate(savedInstanceState);
         setupActionBar();
     }
@@ -228,6 +232,34 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_wifi);
             setHasOptionsMenu(true);
+
+            Preference wifiButton = findPreference(getString(R.string.wifi_button));
+            wifiButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Networker nw = new Networker(getActivity().getApplicationContext());
+                    String[] localInfo = nw.getLocalInfo();
+                    if (localInfo[0] == "<unknown ssid>") {
+                        Toast.makeText(getActivity(), "Can't resolve SSID.",Toast.LENGTH_LONG).show();
+                    } else {
+                        SharedPreferences.Editor editor = shprefs.edit();
+                        editor.putString("wifi_ssid", localInfo[0].substring(localInfo[0].indexOf("\"") + 1, localInfo[0].lastIndexOf("\"")));
+                        editor.commit();
+                        getActivity().recreate();
+                        Toast.makeText(getActivity(), "SSID set to \"" + shprefs.getString("wifi_ssid", "null") + "\".",Toast.LENGTH_LONG).show();
+                    }
+                    return true;
+                }
+            });
+
+            Preference macButton = findPreference(getString(R.string.mac_button));
+            macButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    startActivity(new Intent(getActivity(), PairActivity.class));
+                    return true;
+                }
+            });
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
             // to their values. When their values change, their summaries are

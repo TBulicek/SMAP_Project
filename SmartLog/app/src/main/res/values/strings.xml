@@ -35,8 +35,10 @@
     <string name="pref_title_check_mac">MAC validation</string>
 
     <string name="pref_title_ssid">SSID</string>
+    <string name="wifi_button">Select SSID</string>
     <string name="pref_title_wifimode">Validation mode</string>
     <string name="pref_title_mac">MAC address</string>
+    <string name="mac_button">Select device</string>
 
     <string-array name="pref_wifimodes_titles">
         <item>WiFi available</item>
