@@ -31,12 +31,12 @@ public class PingLooper implements Runnable {
             InetAddress ip = InetAddress.getByName(IPAddress);
             NetworkInterface iFace = NetworkInterface.getByInetAddress(ip);
             for (int i = start; i <= end; i++) {
-                System.out.println(i);
                 String addr = IPAddress;
                 addr = addr.substring(0, addr.lastIndexOf('.') + 1) + i;
                 InetAddress pingAddr = InetAddress.getByName(addr);
+                if (pingAddr.getHostAddress().equals(IPAddress)) { continue; }
                 try {
-                    Process p1 = java.lang.Runtime.getRuntime().exec("ping -c 1 -w 5 " + addr);
+                    Process p1 = java.lang.Runtime.getRuntime().exec("ping -c 1 -w 10 " + addr);
                     boolean reachable = (p1.waitFor() == 0);
                     if (reachable) {
                         addrs.add(pingAddr);

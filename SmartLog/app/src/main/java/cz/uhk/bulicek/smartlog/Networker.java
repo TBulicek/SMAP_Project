@@ -77,8 +77,8 @@ public class Networker {
         return resultStrings;
     }
 
-    public List<InetAddress> searchDevices(String ipAddr) {
-        List<InetAddress> addrs = new ArrayList<>();
+    public ArrayList<InetAddress> searchDevices(String ipAddr) {
+        ArrayList<InetAddress> addrs = new ArrayList<>();
 
         Thread[] threads = new Thread[51];
         for (int i = 0; i<51; i++ ) {

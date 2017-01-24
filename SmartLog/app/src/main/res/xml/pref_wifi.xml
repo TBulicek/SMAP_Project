@@ -65,4 +65,11 @@
         android:key="mac_address"
         android:title="@string/pref_title_mac" />
 
+    <EditTextPreference
+        android:defaultValue=""
+        android:dependency="mac_checking"
+        android:key="ip_address"
+        android:enabled="false"
+        android:title="@string/pref_title_ip" />
+
 </PreferenceScreen>

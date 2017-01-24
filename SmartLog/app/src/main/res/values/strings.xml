@@ -38,6 +38,7 @@
     <string name="wifi_button">Select SSID</string>
     <string name="pref_title_wifimode">Validation mode</string>
     <string name="pref_title_mac">MAC address</string>
+    <string name="pref_title_ip">Default IP</string>
     <string name="mac_button">Select device</string>
 
     <string-array name="pref_wifimodes_titles">

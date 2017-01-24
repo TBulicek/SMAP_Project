@@ -268,6 +268,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("wifi_ssid"));
             bindPreferenceSummaryToValue(findPreference("wifi_mode"));
             bindPreferenceSummaryToValue(findPreference("mac_address"));
+            bindPreferenceSummaryToValue(findPreference("ip_address"));
         }
 
         @Override
