@@ -1,15 +1,27 @@
 package cz.uhk.bulicek.smartlog;
 
+import android.Manifest;
+import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,18 +34,24 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
+    private SharedPreferences shprefs;
     boolean isAttendanceRunning;
     TextView txtToday, txtTodayLeft, txtMonth, txtMonthLeft;
     LogDatabaseHandler dbh = new LogDatabaseHandler(this);
     FloatingActionButton fab;
     Button btnStart, btnStop;
+    CheckBox cbGPS, cbWiFi, cbMAC;
     String strToday, strTodayLeft, strMonth, strMonthLeft;
     Boolean todayLess = true, monthLess = true;
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    LocationManager mLocationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startService(new Intent(this, BackgroundService.class));
+
+        shprefs = PreferenceManager.getDefaultSharedPreferences(this);
         Log initLog = dbh.getLastLog();
         if (initLog == null || initLog.get_type() == 0) {
             isAttendanceRunning = false;
@@ -45,12 +63,18 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        txtToday = (TextView) findViewById(R.id.txt_hoursToday) ;
-        txtTodayLeft = (TextView) findViewById(R.id.txt_leftToday) ;
-        txtMonth = (TextView) findViewById(R.id.txt_hoursMonth) ;
-        txtMonthLeft = (TextView) findViewById(R.id.txt_leftMonth) ;
+        txtToday = (TextView) findViewById(R.id.txt_hoursToday);
+        txtTodayLeft = (TextView) findViewById(R.id.txt_leftToday);
+        txtMonth = (TextView) findViewById(R.id.txt_hoursMonth);
+        txtMonthLeft = (TextView) findViewById(R.id.txt_leftMonth);
         updateDisplay();
 
+        cbGPS = (CheckBox) findViewById(R.id.cb_GPS);
+        cbGPS.setChecked(checkGPS());
+        cbWiFi = (CheckBox) findViewById(R.id.cb_WiFi);
+        cbWiFi.setChecked(checkWiFi());
+        cbMAC = (CheckBox) findViewById(R.id.cb_MAC);
+        cbMAC.setChecked(checkMAC());
 
         btnStop = (Button) findViewById(R.id.btn_stop);
         btnStop.setOnClickListener(new View.OnClickListener() {
@@ -71,6 +95,21 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (shprefs.getBoolean("gps_checking", true) && !checkGPS()) {
+                    Toast.makeText(getApplicationContext(), "GPS: Conditions not met. You can't start work right now.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (shprefs.getBoolean("wifi_checking", true) && !checkWiFi()) {
+                    Toast.makeText(getApplicationContext(), "WiFi: Conditions not met. You can't start work right now.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (shprefs.getBoolean("mac_checking", true) && !checkMAC()) {
+                    Toast.makeText(getApplicationContext(), "MAC: Conditions not met. You can't start work right now.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Calendar cal = Calendar.getInstance();
                 if (!isAttendanceRunning) {
                     btnStart.setText("Working...");
@@ -199,7 +238,9 @@ public class MainActivity extends AppCompatActivity {
 
                 //Fond pracovní doby (víkendy 0)
                 int fpd = 28800;
-                if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {fpd = 0;}
+                if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                    fpd = 0;
+                }
 
                 if (count < fpd) {
                     todayLess = true;
@@ -229,11 +270,11 @@ public class MainActivity extends AppCompatActivity {
 
                 //Fond pracovní doby
                 fpd = 0;
-                int currMonth=cal.get(Calendar.MONTH);
-                int currDay=cal.get(Calendar.DAY_OF_MONTH);
+                int currMonth = cal.get(Calendar.MONTH);
+                int currDay = cal.get(Calendar.DAY_OF_MONTH);
                 cal.set(Calendar.DAY_OF_MONTH, 1);
 
-                while (currMonth==cal.get(Calendar.MONTH) && currDay >= cal.get(Calendar.DAY_OF_MONTH)) {
+                while (currMonth == cal.get(Calendar.MONTH) && currDay >= cal.get(Calendar.DAY_OF_MONTH)) {
                     if (!(cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY)) {
                         fpd += 28800;
                     }
@@ -261,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
                 updateHours();
             }
 
-        },0,60000);//Update text every second
+        }, 0, 60000);//Update text every second
     }
 
     private long getSecondsCount(List<Log> logs) {
@@ -270,8 +311,12 @@ public class MainActivity extends AppCompatActivity {
         long count = 0;
         int last = 0;
         for (Log log : logs) {
-            if (log.get_type() == 0 && !firstStarting) { continue; }
-            if (log.get_type() == 1 && !firstStarting) { firstStarting = true; }
+            if (log.get_type() == 0 && !firstStarting) {
+                continue;
+            }
+            if (log.get_type() == 1 && !firstStarting) {
+                firstStarting = true;
+            }
             if (log.get_type() == 1) {
                 temp = log.get_time();
                 last = 1;
@@ -279,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     Date start = sdf.parse(temp);
                     Date end = sdf.parse(log.get_time());
-                    long seconds = (end.getTime()-start.getTime())/1000;
+                    long seconds = (end.getTime() - start.getTime()) / 1000;
                     count += seconds;
                     last = 0;
                 } catch (ParseException e) {
@@ -291,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 Date start = sdf.parse(temp);
                 Date now = new Date();
-                long seconds = (now.getTime()-start.getTime())/1000;
+                long seconds = (now.getTime() - start.getTime()) / 1000;
                 count += seconds;
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -308,5 +353,49 @@ public class MainActivity extends AppCompatActivity {
         mins = mins % 60;
         if (secs >= 30) mins++;
         return hours + ":" + String.format("%02d", mins); // + ":" + String.format("%02d", secs);
+    }
+
+    private boolean checkGPS() {
+        Location location = getLastKnownLocation();
+
+        Validator validator = new Validator(PreferenceManager.getDefaultSharedPreferences(this), getApplicationContext());
+        boolean valid = validator.validateGPS(location.getLatitude(), location.getLongitude());
+        cbGPS.setChecked(valid);
+        return valid;
+
+    }
+
+    private boolean checkWiFi() {
+        Validator validator = new Validator(PreferenceManager.getDefaultSharedPreferences(this), getApplicationContext());
+        boolean valid = validator.validateWiFi();
+        cbWiFi.setChecked(valid);
+        return valid;
+    }
+
+    private boolean checkMAC() {
+        Validator validator = new Validator(PreferenceManager.getDefaultSharedPreferences(this), getApplicationContext());
+        boolean valid = validator.validateMAC();
+        cbMAC.setChecked(valid);
+        return valid;
+    }
+
+    private Location getLastKnownLocation() {
+        mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+        List<String> providers = mLocationManager.getProviders(true);
+        Location bestLocation = null;
+        for (String provider : providers) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO
+            }
+            Location l = mLocationManager.getLastKnownLocation(provider);
+            if (l == null) {
+                continue;
+            }
+            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+                // Found best last known location: %s", l);
+                bestLocation = l;
+            }
+        }
+        return bestLocation;
     }
 }

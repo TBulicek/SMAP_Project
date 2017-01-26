@@ -2,7 +2,10 @@ package cz.uhk.bulicek.smartlog;
 
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -34,20 +37,44 @@ public class PingLooper implements Runnable {
                 String addr = IPAddress;
                 addr = addr.substring(0, addr.lastIndexOf('.') + 1) + i;
                 InetAddress pingAddr = InetAddress.getByName(addr);
+
+                //skip the IP of 'this' device
                 if (pingAddr.getHostAddress().equals(IPAddress)) { continue; }
+
+                //build process
+                Process p = null;
                 try {
-                    Process p1 = java.lang.Runtime.getRuntime().exec("ping -c 1 -w 10 " + addr);
-                    boolean reachable = (p1.waitFor() == 0);
+                    p = java.lang.Runtime.getRuntime().exec("ping -c 1 -w 1 " + addr);
+                    /*boolean reachable = (p.waitFor() == 0);
                     if (reachable) {
                         addrs.add(pingAddr);
-                    }
+                    }*/
                 } catch (IOException ex) {
-                } catch (InterruptedException ex) {
+                }// catch (InterruptedException ex) {
+                //}
+
+                //process stream/reader
+                InputStream inStream = p.getInputStream();
+                InputStreamReader inStreamReader = new InputStreamReader(inStream);
+                BufferedReader buffReader = new BufferedReader(inStreamReader);
+                String readLine;
+
+                //wait for " 0% packet loss", then add pingAddr to list
+                while ((readLine = buffReader.readLine()) != null) {
+                    CharSequence status = " 0% packet loss";
+                    System.out.println(readLine);
+                    if (readLine.contains(status)) {
+                        addrs.add(pingAddr);
+                    }
                 }
 
             }
         } catch (UnknownHostException ex) {
+            System.out.println(ex);
         } catch (SocketException ex) {
+            System.out.println(ex);
+        } catch (IOException ex) {
+            System.out.println(ex);
         }
     }
 

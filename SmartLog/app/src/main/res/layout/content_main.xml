@@ -50,26 +50,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Last time we checked, logging was.."
-        android:id="@+id/txt_availabilityLabel"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:layout_marginBottom="73dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="AVAILABLE"
-        android:id="@+id/txt_availability"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:layout_marginTop="21dp"
-        android:layout_alignTop="@+id/txt_availabilityLabel"
-        android:layout_alignStart="@+id/txt_workedMonth" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="Worked today:"
         android:id="@+id/txt_workedToday"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
@@ -108,5 +88,35 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:textColor="@color/colorFABRun" />
+
+    <CheckBox
+        android:text="WiFi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/cb_WiFi"
+        android:layout_above="@+id/cb_MAC"
+        android:layout_alignParentStart="true"
+        android:clickable="false"
+        android:textColorLink="@color/colorFABRun" />
+
+    <CheckBox
+        android:text="GPS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/cb_GPS"
+        android:layout_above="@+id/cb_WiFi"
+        android:layout_alignParentStart="true"
+        android:clickable="false"
+        android:textColorLink="@color/colorFABRun" />
+
+    <CheckBox
+        android:text="MAC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/cb_MAC"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:clickable="false"
+        android:textColorLink="@color/colorFABRun" />
 
 </RelativeLayout>

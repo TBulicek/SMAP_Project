@@ -243,7 +243,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         Toast.makeText(getActivity(), "Can't resolve SSID.",Toast.LENGTH_LONG).show();
                     } else {
                         SharedPreferences.Editor editor = shprefs.edit();
-                        editor.putString("wifi_ssid", localInfo[0].substring(localInfo[0].indexOf("\"") + 1, localInfo[0].lastIndexOf("\"")));
+                        editor.putString("wifi_ssid", localInfo[0]);
                         editor.commit();
                         getActivity().recreate();
                         Toast.makeText(getActivity(), "SSID set to \"" + shprefs.getString("wifi_ssid", "null") + "\".",Toast.LENGTH_LONG).show();
