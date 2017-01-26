@@ -12,6 +12,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     String strToday, strTodayLeft, strMonth, strMonthLeft;
     Boolean todayLess = true, monthLess = true;
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    LocationManager mLocationManager;
+    Handler handler; Runnable update;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,12 +53,6 @@ public class MainActivity extends AppCompatActivity {
         startService(new Intent(this, BackgroundService.class));
 
         shprefs = PreferenceManager.getDefaultSharedPreferences(this);
-        Log initLog = dbh.getLastLog();
-        if (initLog == null || initLog.get_type() == 0) {
-            isAttendanceRunning = false;
-        } else {
-            isAttendanceRunning = true;
-        }
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -122,17 +117,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        if (isAttendanceRunning) {
-            btnStart.setText("Working...");
-            btnStart.setEnabled(false);
-            btnStop.setVisibility(View.VISIBLE);
-            btnStop.setEnabled(true);
-        } else {
-            btnStart.setText("Start working");
-            btnStop.setEnabled(false);
-            btnStop.setVisibility(View.INVISIBLE);
-            btnStart.setEnabled(true);
-        }
+        updateButtons();
+        updateHours();
+
+
 
         /*fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -220,11 +208,35 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void updateDisplay() {
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
+    private void updateButtons() {
+        Log initLog = dbh.getLastLog();
+        if (initLog == null || initLog.get_type() == 0) {
+            isAttendanceRunning = false;
+        } else {
+            isAttendanceRunning = true;
+        }
 
-            @Override
+        if (isAttendanceRunning) {
+            btnStart.setText("Working...");
+            btnStart.setEnabled(false);
+            btnStop.setVisibility(View.VISIBLE);
+            btnStop.setEnabled(true);
+        } else {
+            btnStart.setText("Start working");
+            btnStop.setEnabled(false);
+            btnStop.setVisibility(View.INVISIBLE);
+            btnStart.setEnabled(true);
+        }
+    }
+
+    private void updateDisplay() {
+        handler = new Handler();
+
+        //wait until the start of next minute
+        Calendar c = Calendar.getInstance();
+        int secs = c.get(Calendar.SECOND);
+
+        update = new Runnable() {
             public void run() {
                 Calendar cal = Calendar.getInstance();
 
@@ -300,9 +312,13 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 updateHours();
+                updateButtons();
+                handler.postDelayed(update, 60000);
             }
+        };
 
-        }, 0, 60000);//Update text every second
+        //wait until the start of next minute
+        handler.postDelayed(update, (60 - secs)*1000);
     }
 
     private long getSecondsCount(List<Log> logs) {
@@ -356,46 +372,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkGPS() {
-        Location location = getLastKnownLocation();
-
-        Validator validator = new Validator(PreferenceManager.getDefaultSharedPreferences(this), getApplicationContext());
-        boolean valid = validator.validateGPS(location.getLatitude(), location.getLongitude());
+        Validator validator = new Validator(getApplicationContext());
+        boolean valid = validator.validateGPS();
         cbGPS.setChecked(valid);
         return valid;
 
     }
 
     private boolean checkWiFi() {
-        Validator validator = new Validator(PreferenceManager.getDefaultSharedPreferences(this), getApplicationContext());
+        Validator validator = new Validator(getApplicationContext());
         boolean valid = validator.validateWiFi();
         cbWiFi.setChecked(valid);
         return valid;
     }
 
     private boolean checkMAC() {
-        Validator validator = new Validator(PreferenceManager.getDefaultSharedPreferences(this), getApplicationContext());
+        Validator validator = new Validator(getApplicationContext());
         boolean valid = validator.validateMAC();
         cbMAC.setChecked(valid);
         return valid;
-    }
-
-    private Location getLastKnownLocation() {
-        mLocationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-        List<String> providers = mLocationManager.getProviders(true);
-        Location bestLocation = null;
-        for (String provider : providers) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO
-            }
-            Location l = mLocationManager.getLastKnownLocation(provider);
-            if (l == null) {
-                continue;
-            }
-            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-                // Found best last known location: %s", l);
-                bestLocation = l;
-            }
-        }
-        return bestLocation;
     }
 }
