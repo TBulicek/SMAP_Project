@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
                 List<Log> logs = dbh.getLogsToday();
                 long count = getSecondsCount(logs);
-                strToday = " " + countToString(count);
+                strToday = " " + countToString(count, false);
 
                 //Fond pracovní doby (víkendy 0)
                 int fpd = 28800;
@@ -284,12 +284,14 @@ public class MainActivity extends AppCompatActivity {
                     todayLess = false;
                 }
 
+                boolean isNegative = false;
                 count = count - fpd;
                 if (count < 0) {
+                    isNegative = true;
                     count = -count;
                 }
 
-                strTodayLeft = countToString(count);
+                strTodayLeft = countToString(count, isNegative);
                 if (todayLess) {
                     strTodayLeft = "-" + strTodayLeft;
                 } else {
@@ -302,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
 
                 logs = dbh.getLogsMonth();
                 count = getSecondsCount(logs);
-                strMonth = " " + countToString(count);
+                strMonth = " " + countToString(count, false);
 
                 //Fond pracovní doby
                 fpd = 0;
@@ -324,11 +326,13 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 count = count - fpd;
+                isNegative = false;
                 if (count < 0) {
+                    isNegative = true;
                     count = -count;
                 }
 
-                strMonthLeft = countToString(count);
+                strMonthLeft = countToString(count, isNegative);
                 if (monthLess) {
                     strMonthLeft = "-" + strMonthLeft;
                 } else {
@@ -386,12 +390,12 @@ public class MainActivity extends AppCompatActivity {
         return count;
     }
 
-    private String countToString(long secondsCount) {
+    private String countToString(long secondsCount, boolean isNegative) {
         int secs = (int) (secondsCount % 60);
         int mins = (int) (secondsCount / 60);
         int hours = mins / 60;
         mins = mins % 60;
-        if (secs >= 1) mins++;
+        if (secs >= 1 && !isNegative) mins++;
         return hours + ":" + String.format("%02d", mins); // + ":" + String.format("%02d", secs);
     }
 
