@@ -38,10 +38,12 @@ public class BackgroundService extends Service {
 
         //wait until the end of the minute, then update
         Calendar c = Calendar.getInstance();
-        //SimpleDateFormat justSeconds = new SimpleDateFormat("ss");
-        //int secs = Integer.parseInt(justSeconds.format(c.getTime()));
         int secs = c.get(Calendar.SECOND);
 
+        /**
+         * Every minute, this method will validate WiFi/GPS/MAC (according to settings)
+         * and start/end attendance automatically.
+         */
         runnable = new Runnable() {
             public void run() {
                 Calendar loopCalendar = Calendar.getInstance();
@@ -78,7 +80,6 @@ public class BackgroundService extends Service {
                 Toast.makeText(context, "Everything OK. Creating start log." , Toast.LENGTH_LONG).show();
                 if (!isAttendanceRunning) dbh.addLog(new Log(sdf.format(loopCalendar.getTime()), 1));
                 else Toast.makeText(getApplicationContext(), "But it is already there.", Toast.LENGTH_SHORT).show();
-                // TODO: shprefs some value to tell if manually ended, then dont force start
 
                 //restart runnable every minute
                 handler.postDelayed(runnable, 60000);
@@ -93,7 +94,6 @@ public class BackgroundService extends Service {
 
     @Override
     public void onDestroy() {
-        //handler.removeCallbacks(runnable);
         Toast.makeText(this, "Service stopped", Toast.LENGTH_LONG).show();
     }
 }

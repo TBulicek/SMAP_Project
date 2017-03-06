@@ -59,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /**
+         * GUI init
+         */
         txtToday = (TextView) findViewById(R.id.txt_hoursToday);
         txtTodayLeft = (TextView) findViewById(R.id.txt_leftToday);
         txtMonth = (TextView) findViewById(R.id.txt_hoursMonth);
@@ -83,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Calendar cal = Calendar.getInstance();
+                //STOP BUTTON: if attendance is running, stop it. Always.
                 if (isAttendanceRunning) {
                     btnStart.setText("Start working");
                     btnStop.setEnabled(false);
@@ -97,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //START BUTTON: if attendance is not running, CHECK if conditions are met, and start it.
                 if (shprefs.getBoolean("gps_checking", true) && !checkGPS()) {
                     Toast.makeText(getApplicationContext(), "GPS: Conditions not met. You can't start work right now.", Toast.LENGTH_SHORT).show();
                     return;
@@ -124,32 +129,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //GUI update
         updateButtons();
         updateHours();
 
-
-
-        /*fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Calendar cal = Calendar.getInstance();
-                if (!isAttendanceRunning) {
-                    isAttendanceRunning = true;
-                    fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorFABStop)));
-                    dbh.addLog(new Log(sdf.format(cal.getTime()), 1));
-                    Toast.makeText(getApplicationContext(), "Attendance logging started.", Toast.LENGTH_SHORT).show();
-                } else {
-                    isAttendanceRunning = false;
-                    fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorFABRun)));
-                    dbh.addLog(new Log(sdf.format(cal.getTime()), 0));
-                    Toast.makeText(getApplicationContext(), "Attendance logging stopped.", Toast.LENGTH_SHORT).show();
-                }
-                //Snackbar.make(view, "Attendance logging stopped.", Snackbar.LENGTH_LONG)
-                //        .setAction("Action", null).show();
-            }
-        });*/
-
+        //Hours update every sec
         timer = new Timer();
         timer.schedule(new TimerTask(){
             @Override
@@ -171,22 +155,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
-            //myIntent.putExtra("key", value); //Optional parameters
             MainActivity.this.startActivity(settingsIntent);
         }
 
@@ -201,6 +179,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        /**
+         * If Main Activity is killed, attendance should be stopped.
+         */
         Calendar cal = Calendar.getInstance();
         if (isAttendanceRunning) {
             isAttendanceRunning = false;
@@ -210,6 +191,9 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     * Method to update worked hours text.
+     */
     private void updateHours() {
         runOnUiThread(new Runnable() {
             @Override
@@ -232,6 +216,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Method to update buttons (enabled/disabled) according to running attendance.
+     */
     private void updateButtons() {
         Log initLog = dbh.getLastLog();
         if (initLog == null || initLog.get_type() == 0) {
@@ -253,6 +240,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * General GUI update calling other updates, handling recounting hours.
+     */
     private void updateDisplay() {
         handler = new Handler();
 
@@ -349,6 +339,9 @@ public class MainActivity extends AppCompatActivity {
         handler.postDelayed(update, (60 - secs)*1000);
     }
 
+    /**
+     * Method to get the worked time from the database.
+     */
     private long getSecondsCount(List<Log> logs) {
         boolean firstStarting = false;
         String temp = "";
@@ -390,6 +383,9 @@ public class MainActivity extends AppCompatActivity {
         return count;
     }
 
+    /**
+     * Method to convert seconds to hours:minutes text.
+     */
     private String countToString(long secondsCount, boolean isNegative) {
         int secs = (int) (secondsCount % 60);
         int mins = (int) (secondsCount / 60);
@@ -399,6 +395,9 @@ public class MainActivity extends AppCompatActivity {
         return hours + ":" + String.format("%02d", mins); // + ":" + String.format("%02d", secs);
     }
 
+    /**
+     * Checking (GPS/WiFi/MAC) methods.
+     */
     private boolean checkGPS() {
         Validator validator = new Validator(getApplicationContext());
         boolean valid = validator.validateGPS();

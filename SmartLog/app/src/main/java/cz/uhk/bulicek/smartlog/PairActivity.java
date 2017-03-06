@@ -15,6 +15,10 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This Activity displays the list of devices found on local network, and
+ * allows user to pair them with this device.
+ */
 public class PairActivity extends AppCompatActivity {
     private SharedPreferences shprefs;
     ListView devicesList;
@@ -37,15 +41,6 @@ public class PairActivity extends AppCompatActivity {
                 Networker nw = new Networker(getApplicationContext());
                 String ip = nw.getLocalInfo()[1];
                 devices = nw.searchDevices(ip);
-                /*try {
-                    for (InetAddress addr : devices) {
-                        String mac = nw.getMacFromArpCache(addr.getHostAddress());
-                        if (mac == null) {mac = "Unknown";}
-                        devicesStrings.add(addr.getHostAddress() + ": MAC " + mac);
-                    }
-                } catch (Exception e) {
-                    System.out.println(e.toString());
-                }*/
                 updateListView();
             }
         });

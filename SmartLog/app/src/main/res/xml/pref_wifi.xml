@@ -1,16 +1,4 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
-         dismiss it. -->
-    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
-    <!--<ListPreference
-        android:defaultValue="180"
-        android:entries="@array/pref_sync_frequency_titles"
-        android:entryValues="@array/pref_sync_frequency_values"
-        android:key="sync_frequency"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null"
-        android:title="@string/pref_title_sync_frequency" />-->
     <SwitchPreference
         android:defaultValue="true"
         android:key="wifi_checking"
@@ -21,9 +9,6 @@
         android:key="mac_checking"
         android:title="@string/pref_title_check_mac" />
 
-    <!-- Allows the user to choose a ringtone in the 'notification' category. -->
-    <!-- NOTE: This preference will be enabled only when the checkbox above is checked. -->
-    <!-- NOTE: RingtonePreference's summary should be set to its value by the activity code. -->
     <PreferenceCategory android:title="WiFi">
 
     </PreferenceCategory>

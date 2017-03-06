@@ -42,20 +42,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             String stringValue = value.toString();
 
             if (preference instanceof ListPreference) {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
                 ListPreference listPreference = (ListPreference) preference;
                 int index = listPreference.findIndexOfValue(stringValue);
 
-                // Set the summary to reflect the new value.
                 preference.setSummary(
                         index >= 0
                                 ? listPreference.getEntries()[index]
                                 : null);
 
             } else {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
                 preference.setSummary(stringValue);
             }
             return true;
@@ -99,13 +94,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         setupActionBar();
     }
 
-    /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
-     */
     private void setupActionBar() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            // Show the Up button in the action bar.
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
@@ -168,11 +159,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     return true;
                 }
             });
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
             bindPreferenceSummaryToValue(findPreference("gps_latitude"));
             bindPreferenceSummaryToValue(findPreference("gps_longitude"));
             bindPreferenceSummaryToValue(findPreference("gps_radius"));
@@ -228,11 +214,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     return true;
                 }
             });
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
             bindPreferenceSummaryToValue(findPreference("wifi_ssid"));
             bindPreferenceSummaryToValue(findPreference("wifi_mode"));
             bindPreferenceSummaryToValue(findPreference("mac_address"));
