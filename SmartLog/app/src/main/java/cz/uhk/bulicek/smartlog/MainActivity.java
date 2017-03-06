@@ -391,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
         int mins = (int) (secondsCount / 60);
         int hours = mins / 60;
         mins = mins % 60;
-        if (secs >= 0) mins++;
+        if (secs >= 1) mins++;
         return hours + ":" + String.format("%02d", mins); // + ":" + String.format("%02d", secs);
     }
 
