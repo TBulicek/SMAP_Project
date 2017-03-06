@@ -50,16 +50,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Worked today:"
-        android:id="@+id/txt_workedToday"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:layout_below="@+id/btn_stop"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="21dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="Worked this month:"
         android:id="@+id/txt_workedMonth"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
@@ -67,27 +57,6 @@
         android:layout_alignBaseline="@+id/txt_workedToday"
         android:layout_alignBottom="@+id/txt_workedToday"
         android:layout_alignParentEnd="true" />
-
-    <Button
-        android:text="Stop working"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_stop"
-        style="@style/Widget.AppCompat.Button"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/txt_workedMonth"
-        android:textColor="@color/colorFABStop" />
-
-    <Button
-        android:text="Start working"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_start"
-        style="@style/Widget.AppCompat.Button"
-        android:layout_marginStart="18dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/colorFABRun" />
 
     <CheckBox
         android:text="WiFi"
@@ -118,5 +87,36 @@
         android:layout_alignParentStart="true"
         android:clickable="false"
         android:textColorLink="@color/colorFABRun" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Worked today:"
+        android:id="@+id/txt_workedToday"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        android:layout_marginTop="25dp"
+        android:layout_below="@+id/btn_start"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Stop working"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_stop"
+        style="@style/Widget.AppCompat.Button"
+        android:textColor="@color/colorFABStop"
+        android:layout_alignStart="@+id/txt_workedMonth"
+        android:layout_alignBottom="@+id/btn_start" />
+
+    <Button
+        android:text="Start working"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_start"
+        style="@style/Widget.AppCompat.Button"
+        android:layout_marginStart="20dp"
+        android:textColor="@color/colorFABRun"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

@@ -3,10 +3,6 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="cz.uhk.bulicek.smartlog.SettingsActivity$GeneralPreferenceFragment"
-        android:title="@string/pref_header_general" />
-
-    <header
         android:fragment="cz.uhk.bulicek.smartlog.SettingsActivity$GPSPreferenceFragment"
         android:title="@string/pref_header_gps" />
 

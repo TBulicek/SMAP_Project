@@ -17,7 +17,7 @@
         android:title="@string/pref_title_check_wifi" />
 
     <SwitchPreference
-        android:defaultValue="true"
+        android:defaultValue="false"
         android:key="mac_checking"
         android:title="@string/pref_title_check_mac" />
 

@@ -4,20 +4,27 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
+import android.widget.Toast;
 
+import java.security.Provider;
 import java.util.List;
 
 /**
- * Created by bulicek on 24. 1. 2017.
+ * Taking care of validations. Implements LocationListener to be able to get
+ * device location.
  */
 
-public class Validator {
-    SharedPreferences shprefs;
-    Context context;
-    LocationManager mLocationManager;
+public class Validator implements LocationListener {
+    private SharedPreferences shprefs;
+    private Context context;
+    private LocationManager mLocationManager;
+    private Location mCurrentLocation;
+
 
     public Validator(Context context) {
         this.shprefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -26,6 +33,10 @@ public class Validator {
 
     public boolean validateGPS() {
         Location loc = getLastKnownLocation();
+        if (loc == null) {
+            Toast.makeText(context, "Unable to find location", Toast.LENGTH_LONG).show();
+            return false;
+        }
         double lat = loc.getLatitude();
         double lng = loc.getLongitude();
         double latPref = Double.parseDouble(shprefs.getString("gps_latitude", "0"));
@@ -42,6 +53,7 @@ public class Validator {
         Double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         double distance = R * c * 1000; // convert to meters
 
+        System.out.println(distance);
         return (distance <= radPref);
     }
 
@@ -69,6 +81,9 @@ public class Validator {
         return nw.findMACOnNetwork(defIp, currIP, MAC);
     }
 
+    /**
+     * Method to get the location of device.
+     */
     private Location getLastKnownLocation() {
         mLocationManager = (LocationManager) context.getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         List<String> providers = mLocationManager.getProviders(true);
@@ -77,15 +92,36 @@ public class Validator {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO
             }
-            Location l = mLocationManager.getLastKnownLocation(provider);
-            if (l == null) {
+            mLocationManager.requestLocationUpdates(provider, 0, 0, this);
+            Location mCurrentLocation = mLocationManager.getLastKnownLocation(provider);
+            if (mCurrentLocation == null) {
                 continue;
             }
-            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+            if (bestLocation == null || mCurrentLocation.getAccuracy() < bestLocation.getAccuracy()) {
                 // Found best last known location: %s", l);
-                bestLocation = l;
+                bestLocation = mCurrentLocation;
             }
         }
         return bestLocation;
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
     }
 }

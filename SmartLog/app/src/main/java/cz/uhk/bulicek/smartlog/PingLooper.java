@@ -1,7 +1,5 @@
 package cz.uhk.bulicek.smartlog;
 
-import android.widget.Toast;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,11 +8,11 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by bulicek on 24. 1. 2017.
+ * Class (implementing Runnable) that handles pinging IP address range.
+ * See addConnectedDevices method below.
  */
 
 public class PingLooper implements Runnable {
@@ -29,12 +27,19 @@ public class PingLooper implements Runnable {
         this.addrs = addrs;
     }
 
+    /**
+    Method that loops trough IP addresses in given range start-end, pings
+    them and adds to addrs list, if no packets are lost (if reachable)
+     */
     public void addConnectedDevices(String IPAddress, int start, int end) {
         try {
             InetAddress ip = InetAddress.getByName(IPAddress);
             NetworkInterface iFace = NetworkInterface.getByInetAddress(ip);
+            //loop IPs from start to end
             for (int i = start; i <= end; i++) {
                 String addr = IPAddress;
+
+                //set last octet of IP to i, make it InetAddress
                 addr = addr.substring(0, addr.lastIndexOf('.') + 1) + i;
                 InetAddress pingAddr = InetAddress.getByName(addr);
 
@@ -45,13 +50,8 @@ public class PingLooper implements Runnable {
                 Process p = null;
                 try {
                     p = java.lang.Runtime.getRuntime().exec("ping -c 1 -w 1 " + addr);
-                    /*boolean reachable = (p.waitFor() == 0);
-                    if (reachable) {
-                        addrs.add(pingAddr);
-                    }*/
                 } catch (IOException ex) {
-                }// catch (InterruptedException ex) {
-                //}
+                }
 
                 //process stream/reader
                 InputStream inStream = p.getInputStream();
@@ -59,7 +59,7 @@ public class PingLooper implements Runnable {
                 BufferedReader buffReader = new BufferedReader(inStreamReader);
                 String readLine;
 
-                //wait for " 0% packet loss", then add pingAddr to list
+                //read, wait for " 0% packet loss", then add pingAddr to list
                 while ((readLine = buffReader.readLine()) != null) {
                     CharSequence status = " 0% packet loss";
                     System.out.println(readLine);

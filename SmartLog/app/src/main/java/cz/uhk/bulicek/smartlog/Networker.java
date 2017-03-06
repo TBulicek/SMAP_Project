@@ -22,7 +22,7 @@ import java.util.List;
 import static android.content.Context.WIFI_SERVICE;
 
 /**
- * Created by bulicek on 24. 1. 2017.
+ * Class that handles all the networking.
  */
 
 public class Networker {
@@ -30,6 +30,11 @@ public class Networker {
 
     public Networker(Context c) { this.context = c; }
 
+    /**
+     * Method to get local info, returning array, where
+     * [0] is SSID of the network device is connected to, and
+     * [1] is IP of the device on that network
+     */
     public String[] getLocalInfo() {
         String[] localInfo = new String[2];
 
@@ -61,13 +66,16 @@ public class Networker {
         try {
             ipAddressString = InetAddress.getByAddress(ipByteArray).getHostAddress();
         } catch (UnknownHostException ex) {
-            ipAddressString = "Unable to get host address.";
+            ipAddressString = "Unable to get host address.: " + ex;
         }
         localInfo[1] = ipAddressString;
 
         return localInfo;
     }
 
+    /**
+     * Method that returns a list of networks available to the device.
+     */
     public List<String> getAvailibleNetworks() {
         List<String> resultStrings = new ArrayList<>();
         WifiManager mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
@@ -81,6 +89,11 @@ public class Networker {
         return resultStrings;
     }
 
+    /**
+     * Method that returns an array list of devices that are currently responding on
+     * local network. This method manages the threads, and uses PingLooper class to
+     * do all the actual pinging.
+     */
     public ArrayList<InetAddress> searchDevices(String ipAddr) {
         ArrayList<InetAddress> addrs = new ArrayList<>();
 
@@ -101,6 +114,9 @@ public class Networker {
         return addrs;
     }
 
+    /**
+     * Method that returns a MAC address for a given IP address.
+     */
     public String getMacFromArpCache(String ip) {
         if (ip == null)
             return null;
@@ -111,7 +127,6 @@ public class Networker {
             while ((line = br.readLine()) != null) {
                 String[] splitted = line.split(" +");
                 if (splitted != null && splitted.length >= 4 && ip.equals(splitted[0])) {
-                    // Basic sanity check
                     String mac = splitted[3];
                     if (mac.matches("..:..:..:..:..:..")) {
                         return mac;
@@ -132,6 +147,10 @@ public class Networker {
         return null;
     }
 
+    /**
+     * Method to check if MAC is on the network. First uses the default IP, if that
+     * does not match, then tries to search all devices (searchDevices method).
+     */
     public boolean findMACOnNetwork(String defaultIP, String currentIP, String MAC) {
         //first pass-trough: check MAC on defaultIP
         try {

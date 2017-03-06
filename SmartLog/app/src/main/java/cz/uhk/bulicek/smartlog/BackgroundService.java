@@ -38,6 +38,8 @@ public class BackgroundService extends Service {
 
         //wait until the end of the minute, then update
         Calendar c = Calendar.getInstance();
+        //SimpleDateFormat justSeconds = new SimpleDateFormat("ss");
+        //int secs = Integer.parseInt(justSeconds.format(c.getTime()));
         int secs = c.get(Calendar.SECOND);
 
         runnable = new Runnable() {
@@ -45,7 +47,6 @@ public class BackgroundService extends Service {
                 Calendar loopCalendar = Calendar.getInstance();
                 Boolean isAttendanceRunning;
                 Log initLog = dbh.getLastLog();
-                System.out.println("THE LAST LOG WAS: " + initLog.get_time() + " ... " + initLog.get_type());
                 if (initLog == null || initLog.get_type() == 0) {
                     isAttendanceRunning = false;
                 } else {
@@ -85,7 +86,9 @@ public class BackgroundService extends Service {
         };
 
         //wait until the end of the minute, then update
-        handler.postDelayed(runnable, (60 - secs - 1)*1000);
+        long s = (60 - secs - 30);
+        if (secs > 30) s += 60;
+        handler.postDelayed(runnable, s*1000);
     }
 
     @Override

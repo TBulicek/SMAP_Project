@@ -16,10 +16,18 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="?attr/colorPrimaryDark"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:logo="@mipmap/ic_launcher"
             app:subtitle="Attendance Logging App" />
+
+        <TextView
+            android:text="TextView"
+            android:layout_width="match_parent"
+            android:layout_height="34dp"
+            android:id="@+id/txtTime"
+            android:gravity="center"
+            android:background="@color/colorPrimary" />
 
     </android.support.design.widget.AppBarLayout>
 

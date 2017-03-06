@@ -31,13 +31,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
     private SharedPreferences shprefs;
     boolean isAttendanceRunning;
-    TextView txtToday, txtTodayLeft, txtMonth, txtMonthLeft;
+    TextView txtToday, txtTodayLeft, txtMonth, txtMonthLeft, txtTime;
     LogDatabaseHandler dbh = new LogDatabaseHandler(this);
     FloatingActionButton fab;
     Button btnStart, btnStop;
@@ -46,11 +47,11 @@ public class MainActivity extends AppCompatActivity {
     Boolean todayLess = true, monthLess = true;
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     Handler handler; Runnable update;
+    Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        startService(new Intent(this, BackgroundService.class));
 
         shprefs = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -62,14 +63,20 @@ public class MainActivity extends AppCompatActivity {
         txtTodayLeft = (TextView) findViewById(R.id.txt_leftToday);
         txtMonth = (TextView) findViewById(R.id.txt_hoursMonth);
         txtMonthLeft = (TextView) findViewById(R.id.txt_leftMonth);
-        updateDisplay();
+        txtTime = (TextView) findViewById(R.id.txtTime);
 
         cbGPS = (CheckBox) findViewById(R.id.cb_GPS);
         cbGPS.setChecked(checkGPS());
         cbWiFi = (CheckBox) findViewById(R.id.cb_WiFi);
         cbWiFi.setChecked(checkWiFi());
         cbMAC = (CheckBox) findViewById(R.id.cb_MAC);
-        cbMAC.setChecked(checkMAC());
+        if (cbWiFi.isChecked() && shprefs.getBoolean("mac_checking", true)) {
+            cbMAC.setEnabled(true);
+            cbMAC.setChecked(checkMAC());
+        } else {
+            cbMAC.setEnabled(false);
+            cbMAC.setChecked(false);
+        }
 
         btnStop = (Button) findViewById(R.id.btn_stop);
         btnStop.setOnClickListener(new View.OnClickListener() {
@@ -142,6 +149,24 @@ public class MainActivity extends AppCompatActivity {
                 //        .setAction("Action", null).show();
             }
         });*/
+
+        timer = new Timer();
+        timer.schedule(new TimerTask(){
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Calendar c = Calendar.getInstance();
+                        c.setFirstDayOfWeek(c.MONDAY);
+                        SimpleDateFormat displaySDF = new SimpleDateFormat("EEEE, HH:mm:ss", Locale.US);
+                        txtTime.setText(displaySDF.format(c.getTime()));
+                    }
+                });
+            }
+        }, 0, 1000);
+
+        startService(new Intent(this, BackgroundService.class));
+        updateDisplay();
     }
 
     @Override
@@ -179,7 +204,6 @@ public class MainActivity extends AppCompatActivity {
         Calendar cal = Calendar.getInstance();
         if (isAttendanceRunning) {
             isAttendanceRunning = false;
-            fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorFABRun)));
             dbh.addLog(new Log(sdf.format(cal.getTime()), 0));
             Toast.makeText(getApplicationContext(), "Attendance logging stopped due to exiting the activity.", Toast.LENGTH_SHORT).show();
         }
